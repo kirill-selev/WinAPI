@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{56233a0d-b638-463c-bb80-12dcb1a136d6}</ProjectGuid>
-    <RootNamespace>WinAPI</RootNamespace>
+    <ProjectGuid>{09c86746-5cb0-4fc2-afec-680bee14ed9c}</ProjectGuid>
+    <RootNamespace>ComboBox</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -134,11 +134,6 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="bank_building_icon_263681.ico" />
-    <Image Include="dota_icon_249739.ico" />
-    <Image Include="icon2.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
