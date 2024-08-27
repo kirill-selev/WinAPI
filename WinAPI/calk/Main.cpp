@@ -43,15 +43,17 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPreveInst, LPSTR IpCmdLine, I
 	wClass.cbWndExtra = 0;
 	wClass.cbClsExtra = 0;
 
-	wClass.hIcon = (HICON)LoadImage(hInstance, "calc.ico", IMAGE_ICON, LR_DEFAULTSIZE, IMAGE_ICON, LR_DEFAULTSIZE);
-	wClass.hIconSm = (HICON)LoadImage(hInstance, "calc.ico", IMAGE_ICON, LR_DEFAULTSIZE, IMAGE_ICON, LR_DEFAULTSIZE);
+	wClass.hIcon = (HICON)LoadImage(hInstance, "calc.ico", IMAGE_ICON, LR_DEFAULTSIZE, LR_DEFAULTSIZE, LR_LOADFROMFILE);
+	wClass.hIconSm = (HICON)LoadImage(hInstance, "calc.ico", IMAGE_ICON, LR_DEFAULTSIZE, LR_DEFAULTSIZE, LR_LOADFROMFILE);
 	wClass.hCursor = LoadCursor(hInstance, IDC_ARROW);
 	wClass.hbrBackground = (HBRUSH)COLOR_WINDOW;
 
 	wClass.hInstance = hInstance;
 	wClass.lpszClassName = g_sz_WINDOWS_CLASS;
-	wClass.lpfnWndProc = (WNDPROC)WndProc;
+	wClass.lpfnWndProc = (WNDPROC)WndProc; 
 	wClass.lpszMenuName = NULL;
+
+
 
 	if (!RegisterClassEx(&wClass))
 	{
@@ -130,10 +132,14 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					NULL
 				);
 			}
+			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			 
 
-			CreateWindowEx
+			
+
+			HWND buttonZero = CreateWindowEx
 			(NULL, "Button", "0",
-				WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+				WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON|BS_BITMAP,
 				g_i_START_X_BUTTON, g_i_START_Y_BUTTON + (g_i_BUTTON_SIZE + g_i_INTERVAL) * 3,
 				g_i_BUTTON_DOUBLE_SIZE, g_i_BUTTON_SIZE,
 				hwnd,
@@ -141,6 +147,16 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				NULL,
 				NULL
 			);
+			HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, "zero.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+			if (hBitmap == NULL) {
+				MessageBox(hwnd, "Failed to load image", "Error", MB_OK | MB_ICONERROR);
+			}
+			else {
+				SendMessage(buttonZero, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hBitmap);
+			}
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 			CreateWindowEx
 			(
 
@@ -157,6 +173,7 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				NULL
 
 			);
+		
 			//////////////////////operations:///////////////////
 			CONST CHAR sz_operations[] = "+-*/";
 			CHAR sz_operation[2] = "";
@@ -413,10 +430,4 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 }
 
-VOID PushButton(HWND parent, INT id)
-{
-	SendMessage(GetDlgItem(parent, id), BM_SETSTATE, TRUE, 0);
-	Sleep(100);
-	SendMessage(GetDlgItem(parent, id), BM_SETSTATE, FALSE, 0);
 
-}
