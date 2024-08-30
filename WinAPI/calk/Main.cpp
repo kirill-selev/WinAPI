@@ -15,12 +15,14 @@ CONST CHAR g_sz_WINDOWS_CLASS[] = "Calc_PD_311";
 CONST INT g_i_START_X = 10;
 CONST INT g_i_START_Y = 10;
 
-CONST INT g_i_BUTTON_SIZE = 50;
-CONST INT g_i_INTERVAL = 5;
+CONST INT g_i_BUTTON_SIZE = 64;
+CONST INT g_i_INTERVAL = 0;
 CONST INT g_i_BUTTON_DOUBLE_SIZE = g_i_BUTTON_SIZE * 2 + g_i_INTERVAL;
 
 CONST INT g_i_DISPLAY_WIDTH = (g_i_BUTTON_SIZE + g_i_INTERVAL) * 5;
-CONST INT g_i_DISPLAY_HEIGHT = 22;
+CONST INT g_i_DISPLAY_HEIGHT = 64;
+CONST INT g_i_FONT_HEIGHT = g_i_DISPLAY_HEIGHT - 2;
+CONST INT g_i_FONT_WIDTH = g_i_FONT_HEIGHT / 2.5;
 
 CONST INT g_i_TITLE_HEIGHT = 39;
 CONST INT g_i_WINDOW_WIDTH = g_i_DISPLAY_WIDTH + g_i_START_X * 2 + 16;
@@ -31,7 +33,15 @@ CONST INT g_i_START_Y_BUTTON = g_i_START_Y * 2 + g_i_DISPLAY_HEIGHT;
 CONST INT g_i_START_X_OPERATIONS = g_i_START_X_BUTTON + (g_i_BUTTON_SIZE + g_i_INTERVAL) * 3;
 CONST INT g_i_START_X_CONTROL_BUTTONS = g_i_START_X_BUTTON + (g_i_BUTTON_SIZE + g_i_INTERVAL) * 4;
 
+CONST COLORREF g_COLORS[][3] =
+{
+  {RGB(0,0,200),RGB(0,0,155),RGB(255,0,0)},
+  {RGB(0,200,0),RGB(0,110,0),RGB(0,255,0)}
 
+};
+enum COLOR   {BLUE,GREEN};
+
+enum ELEMENT { WINDOW_BACKGROUND, DISPLAY_BACKGROUND, FOREGROUND };
 
 
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPreveInst, LPSTR IpCmdLine, INT nCmdShow)
@@ -99,6 +109,9 @@ VOID SetSkin(HWND hwnd,LPSTR skin);
 INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     static CONST CHAR DEFAULT_SKIN[]="square_blue";
+	static  CHAR skin[MAX_PATH]{};
+	static  CHAR color_scheme=COLOR::BLUE;
+
 	switch (uMsg)
 	{
 	case WM_CREATE:
@@ -115,15 +128,18 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		HWND hDisplay = CreateWindowEx
 		(
 			NULL, "Edit", "0",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_RIGHT | ES_READONLY,
+			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_RIGHT ,
 			g_i_START_X, g_i_START_Y,
 			g_i_DISPLAY_WIDTH, g_i_DISPLAY_HEIGHT,
 			hwnd, (HMENU)IDC_EDIT_DISPLAY,
 			NULL, NULL
 		);
+
+		AddFontResourceEx("Fonds\\aboba\\aboba.ttf",FR_PRIVATE,0);
+		AddFontResourceEx("Fonds\\digital-7\\digital-7.ttf", FR_PRIVATE, 0);
 		HFONT myFont = CreateFont(
-			24, // Высота шрифта
-			0,  // Средняя ширина символа 
+			g_i_FONT_HEIGHT, // Высота шрифта
+			g_i_FONT_WIDTH,  // Средняя ширина символа (0 означает пропорциональный шрифт)
 			0,  // Угол наклона
 			0,  // Угол поворота
 			FW_NORMAL, // Нормальная толщина шрифта
@@ -135,7 +151,7 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			CLIP_DEFAULT_PRECIS, // Точность отсечения
 			DEFAULT_QUALITY, // Качество
 			DEFAULT_PITCH | FF_SWISS, // Семейство и начертание
-			"comic sans ms"//"WINGDINGS" // Имя шрифта
+			"digital-7"//"comic sans ms"//"WINGDINGS" 
 		);
 
 			/* Change the button font. */
@@ -187,25 +203,7 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			
 
-			/*HANDLE hImageDigit0 = LoadImage(NULL, "buttons\\square_blue\\button_0.bmp", IMAGE_BITMAP, g_i_BUTTON_DOUBLE_SIZE, g_i_BUTTON_SIZE, LR_LOADFROMFILE);*/
-			/*if (hImageDigit0 == NULL)
-			{
-				DWORD dwErrorMessageID = GetLastError();
-				LPSTR lpszMessageBuffer = NULL;
-				DWORD dwSize = FormatMessage
-				(
-					FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-					NULL,
-					dwErrorMessageID,
-					MAKELANGID(LANG_NEUTRAL, SUBLANG_RUSSIAN_RUSSIA),
-					(LPSTR)&lpszMessageBuffer,
-					0,NULL
-				);
-				
-				MessageBox(hwnd,lpszMessageBuffer,"ERROR",MB_OK|MB_ICONERROR);
-			}*/
-			/*SendMessage(hButtonDigit0, BM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hImageDigit0);*/
-				
+			
 
 
 
@@ -476,16 +474,23 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_CTLCOLOREDIT:
 	{
-		HDC hdc=(HDC)wParam;
-		SetBkMode(hdc,OPAQUE);SetBkColor(hdc,RGB(0,0,155));
-		HBRUSH hBrush=CreateSolidBrush(RGB(0,0,200));
-		SetTextColor(hdc,RGB(0,0,255));
-		SetClassLongPtr(hwnd,GCLP_HBRBACKGROUND,(LONG_PTR)hBrush);
-		SendMessage(hwnd,WM_ERASEBKGND,wParam,0);
-		SendMessage(GetDlgItem(hwnd,IDC_EDIT_DISPLAY),WM_SETTEXT,0,(LPARAM)"0");
+		HDC hdc = (HDC)wParam;
+		SetBkMode(hdc, OPAQUE);
+		SetBkColor(hdc, g_COLORS[color_scheme][ELEMENT::DISPLAY_BACKGROUND]);
+		HBRUSH hBrush = CreateSolidBrush(g_COLORS[color_scheme][ELEMENT::WINDOW_BACKGROUND]);
+		SetTextColor(hdc, g_COLORS[color_scheme][ELEMENT::FOREGROUND]);
+		SetClassLongPtr(hwnd, GCLP_HBRBACKGROUND, (LONG_PTR)hBrush);
+		SendMessage(hwnd, WM_ERASEBKGND, wParam, 0);
+		//SendMessage(GetDlgItem(hwnd, IDC_EDIT_DISPLAY), WM_SETTEXT, 0, (LPARAM)"0");
+		////////////////////////////////////////////////////////////////
+		/*HWND hEditDisplay = GetDlgItem(hwnd, IDC_EDIT_DISPLAY);
+		HDC hdcEditDisplay = GetDC(hEditDisplay);
+		SetBkMode(hdcEditDisplay, OPAQUE); SetBkColor(hdcEditDisplay, RGB(0, 0, 155));
+		HBRUSH hBrushDisplay = CreateSolidBrush(RGB(0, 0, 200));
+		SetTextColor(hdcEditDisplay, RGB(255, 0, 0));
+		ReleaseDC(hwnd, hdcEditDisplay);*/
 
-		
-		return(LRESULT)hBrush;
+		return (LRESULT)hBrush;
 
 
 	}
@@ -502,8 +507,8 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		BOOL item = TrackPopupMenuEx(hMainMenu, TPM_BOTTOMALIGN | TPM_LEFTALIGN | TPM_RETURNCMD, LOWORD(lParam), HIWORD(lParam), hwnd, NULL);
 		switch (item)
 		{
-		case CM_SQUARE_BLUE: SetSkin(hwnd, (LPSTR)"square_blue"); break;
-		case CM_SQUARE_GREEN: SetSkin(hwnd, (LPSTR)"square_green"); break;
+		case CM_SQUARE_BLUE:	SetSkin(hwnd, (LPSTR)"square_blue"); color_scheme = BLUE; break;
+		case CM_SQUARE_GREEN:	SetSkin(hwnd, (LPSTR)"square_green"); color_scheme = GREEN; break;
 		case CM_EXIT:		DestroyWindow(hwnd); break;
 		}
 
@@ -513,6 +518,9 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SendMessage(hwnd, WM_CTLCOLOREDIT, (WPARAM)hdcEdit, 0);
 		ReleaseDC(hwnd, hdcEdit);
 		ReleaseDC(hwnd, hdc);
+		CHAR sz_buffer[MAX_PATH]{};
+		SendMessage(GetDlgItem(hwnd, IDC_EDIT_DISPLAY), WM_GETTEXT, MAX_PATH, (LPARAM)sz_buffer);
+		SendMessage(GetDlgItem(hwnd, IDC_EDIT_DISPLAY), WM_SETTEXT, 0, (LPARAM)sz_buffer);
 	}
 	break;
 	case WM_DESTROY:PostQuitMessage(0);break;
