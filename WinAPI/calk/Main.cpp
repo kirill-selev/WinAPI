@@ -135,7 +135,7 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			CLIP_DEFAULT_PRECIS, // Точность отсечения
 			DEFAULT_QUALITY, // Качество
 			DEFAULT_PITCH | FF_SWISS, // Семейство и начертание
-			"Arial" // Имя шрифта
+			"comic sans ms"//"WINGDINGS" // Имя шрифта
 		);
 
 			/* Change the button font. */
