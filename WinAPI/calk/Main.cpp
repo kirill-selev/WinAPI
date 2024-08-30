@@ -110,6 +110,8 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		int window_heignt = rectWindow.bottom - rectWindow.top;
 		int title_heigt = window_heignt - rectClient.bottom;
 
+		
+		///////////////////////////////////////////загрузка_шрифта//////////////////////////////////////
 		HWND hDisplay = CreateWindowEx
 		(
 			NULL, "Edit", "0",
@@ -119,6 +121,32 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			hwnd, (HMENU)IDC_EDIT_DISPLAY,
 			NULL, NULL
 		);
+		HFONT myFont = CreateFont(
+			24, // Высота шрифта
+			0,  // Средняя ширина символа 
+			0,  // Угол наклона
+			0,  // Угол поворота
+			FW_NORMAL, // Нормальная толщина шрифта
+			FALSE, // Курсив
+			FALSE, // Подчеркивание
+			FALSE, // Перечеркивание
+			DEFAULT_CHARSET, // Набор символов
+			OUT_DEFAULT_PRECIS, // Точность вывода
+			CLIP_DEFAULT_PRECIS, // Точность отсечения
+			DEFAULT_QUALITY, // Качество
+			DEFAULT_PITCH | FF_SWISS, // Семейство и начертание
+			"Arial" // Имя шрифта
+		);
+
+			/* Change the button font. */
+			SendMessage(hDisplay, WM_SETFONT, WPARAM(myFont), TRUE);
+
+
+
+		//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 		//////////////////////digits:///////////////////
 		INT digit = 0;
 		CHAR sz_digit[2]{};
