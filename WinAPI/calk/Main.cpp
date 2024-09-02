@@ -112,10 +112,13 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	static  CHAR skin[MAX_PATH]{};
 	static  CHAR color_scheme=COLOR::BLUE;
 
+
 	switch (uMsg)
 	{
 	case WM_CREATE:
 	{
+	   
+	    
 		RECT rectWindow;
 		RECT rectClient;
 		GetWindowRect(hwnd, &rectWindow);
@@ -434,7 +437,6 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	}
 	break;
-
 	case WM_KEYDOWN:
 	{
 		if (GetKeyState(VK_SHIFT) < 0 && LOWORD(wParam) == 0x38)
