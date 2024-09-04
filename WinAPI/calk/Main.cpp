@@ -1,7 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
+#include<iostream>
 #include<Windows.h>
 #include<limits>
-#include<iostream>
 #include<stdio.h>
 #include"resource.h"
 
@@ -17,7 +17,7 @@ CONST INT g_i_START_X = 10;
 CONST INT g_i_START_Y = 10;
 
 CONST INT g_i_BUTTON_SIZE = 64;
-CONST INT g_i_INTERVAL = 0;
+CONST INT g_i_INTERVAL = 5;
 CONST INT g_i_BUTTON_DOUBLE_SIZE = g_i_BUTTON_SIZE * 2 + g_i_INTERVAL;
 
 CONST INT g_i_DISPLAY_WIDTH = (g_i_BUTTON_SIZE + g_i_INTERVAL) * 5;
@@ -37,10 +37,11 @@ CONST INT g_i_START_X_CONTROL_BUTTONS = g_i_START_X_BUTTON + (g_i_BUTTON_SIZE + 
 CONST COLORREF g_COLORS[][3] =
 {
   {RGB(0,0,200),RGB(0,0,155),RGB(255,0,0)},
-  {RGB(0,200,0),RGB(0,110,0),RGB(0,255,0)}
+  {RGB(0,200,0),RGB(0,110,0),RGB(0,255,0)},
+  {RGB(32,32,32),RGB(100,100,100),RGB(0,250,0)},
 
 };
-enum COLOR   {BLUE,GREEN};
+enum COLOR   {BLUE,GREEN,MERCURY};
 
 enum ELEMENT { WINDOW_BACKGROUND, DISPLAY_BACKGROUND, FOREGROUND };
 
@@ -530,7 +531,7 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 		case CM_SQUARE_BLUE:	SetSkinFromDLL(hwnd, (LPSTR)"square_blue"); color_scheme = BLUE; break;
 		case CM_SQUARE_GREEN:	SetSkinFromDLL(hwnd, (LPSTR)"square_green"); color_scheme = GREEN; break;
-		case CM_METAL_MISTRAL:	SetSkinFromDLL(hwnd, (LPSTR)"metal_mistral"); color_scheme = GREEN; break;
+		case CM_METAL_MISTRAL:	SetSkinFromDLL(hwnd, (LPSTR)"metal_mistral"); color_scheme = MERCURY; break;
 		case CM_EXIT:		DestroyWindow(hwnd); break;
 		}
 
@@ -584,33 +585,22 @@ VOID SetSkinFromDLL(HWND hwnd, LPSTR skin)
 {
 	HINSTANCE hButtons = LoadLibrary(skin);
 	CHAR sz_file[MAX_PATH]{};
-
-	for (int i = IDC_BUTTON_0;i <= IDC_BUTTON_EQUAL;i++)
+	for (int i = IDC_BUTTON_0; i <= IDC_BUTTON_EQUAL; i++)
 	{
 		HWND hButton = GetDlgItem(hwnd, i);
-		std::cout<<i<<std::endl;
-		HBITMAP hImage = (HBITMAP)LoadImage(
-		   hButtons,
-		   MAKEINTRESOURCE(i-IDC_BUTTON_0+100),
-		   IMAGE_BITMAP,
-		   i==IDC_BUTTON_0?g_i_BUTTON_DOUBLE_SIZE:g_i_BUTTON_SIZE,
-			i == IDC_BUTTON_EQUAL ?  g_i_BUTTON_DOUBLE_SIZE : g_i_BUTTON_SIZE,
-			LR_SHARED
-
-		);
-		/*sprintf(sz_file, "ButtonsBM\\%s\\button_%i.bmp", skin, i - IDC_BUTTON_0);*/
-		/*HANDLE hImage = LoadImage
-		(GetModuleHandle(NULL),
-			sz_file,
+		std::cout << i << "\t" << std::endl;
+		HBITMAP hImage = (HBITMAP)LoadImage
+		(
+			hButtons,
+			MAKEINTRESOURCE(i - IDC_BUTTON_0 + 100),
 			IMAGE_BITMAP,
 			i == IDC_BUTTON_0 ? g_i_BUTTON_DOUBLE_SIZE : g_i_BUTTON_SIZE,
-			g_i_BUTTON_SIZE,
-			LR_LOADFROMFILE
-		);*/
-
+			i == IDC_BUTTON_EQUAL ? g_i_BUTTON_DOUBLE_SIZE : g_i_BUTTON_SIZE,
+			LR_SHARED
+		);
 		SendMessage(hButton, BM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hImage);
 	}
 	FreeLibrary(hButtons);
-}
+	}
 
 
