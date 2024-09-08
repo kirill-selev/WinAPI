@@ -62,6 +62,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPreveInst, LPSTR IpCmdLine, I
 	wClass.hIconSm = (HICON)LoadImage(hInstance, "calc.ico", IMAGE_ICON, LR_DEFAULTSIZE, LR_DEFAULTSIZE, LR_LOADFROMFILE);
 	wClass.hCursor = LoadCursor(hInstance, IDC_ARROW);
 	wClass.hbrBackground = (HBRUSH)COLOR_WINDOW;
+	HBITMAP bacround = (HBITMAP)LoadImage(hInstance, "ico\\bgr.bmp", IMAGE_BITMAP, LR_DEFAULTSIZE, LR_DEFAULTSIZE, LR_LOADFROMFILE);
+	wClass.hbrBackground = CreatePatternBrush(bacround);
 
 	wClass.hInstance = hInstance;
 	wClass.lpszClassName = g_sz_WINDOWS_CLASS;
