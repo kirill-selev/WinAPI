@@ -1,4 +1,4 @@
-#include<Windows.h>
+ï»¿#include<Windows.h>
 #include<iostream>
 #include <Richedit.h>
 #include"resource.h"
@@ -11,7 +11,7 @@ BOOL SaveTextFileFromEdit(HWND hEdit, LPCSTR lpszFileName);
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE gPrevInst, LPSTR lpCmdLine, INT nCmdShow)
 {
 
-	//1)ðåãèñòðàöèÿ îêíà 
+	//1)Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð°Ñ†Ð¸Ñ Ð¾ÐºÐ½Ð° 
 	WNDCLASSEX wClass;
 	ZeroMemory(&wClass, sizeof(WNDCLASSEX));
 	wClass.style = 0;
@@ -36,7 +36,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE gPrevInst, LPSTR lpCmdLine, IN
 	}
 
 
-	//2)Ñîçäàíèå îêíà 
+	//2)Ð¡Ð¾Ð·Ð´Ð°Ð½Ð¸Ðµ Ð¾ÐºÐ½Ð° 
 	HWND hwnd = CreateWindowEx
 	(
 		NULL,
@@ -62,7 +62,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE gPrevInst, LPSTR lpCmdLine, IN
 
 
 
-	//3)Çàïóñê öèêëà ñîîáùåíèé  
+	//3)Ð—Ð°Ð¿ÑƒÑÐº Ñ†Ð¸ÐºÐ»Ð° ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ð¹  
 	MSG msg;
 	while (GetMessage(&msg, hwnd, 0, NULL) > 0)
 	{
@@ -76,13 +76,15 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE gPrevInst, LPSTR lpCmdLine, IN
 
 INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	static HINSTANCE hRichedit20 = LoadLibrary("riched20.dll");
+	static HINSTANCE hRichEdit20 = LoadLibrary("riched20.dll");
+	static CHAR szFileName[MAX_PATH] = "";
+	static BOOL bnChanged = FALSE;
 	switch (uMsg)
 	{
 
 	case WM_CREATE:
 	{
-
+		
 		RECT windowRect;
 		RECT clientRect;
 		GetWindowRect(hwnd, &windowRect);
@@ -101,6 +103,7 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			NULL,
 			NULL
 		);
+		SendMessage(hEdit,EM_SETEVENTMASK,0,ENM_CHANGE);
 	}
 	break;
 	case WM_SIZE:
@@ -113,36 +116,78 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
-		case ID_FILE_OPEN: 
+		case ID_FILE_OPEN:
 		{
-		 CHAR szFileName[MAX_PATH]{};
+			BOOL cancel = FALSE;
+			if (bnChanged)
+			{
+				switch (MessageBox(hwnd, "Ã‘Ã®ÃµÃ°Ã Ã­Ã¨Ã²Ã¼ Ã¨Ã§Ã¬Ã¥Ã­Ã¥Ã­Ã¨Ã¿?", "Ã”Ã Ã©Ã« Ã¡Ã»Ã« Ã¨Ã§Ã¬Ã¥Ã­Ã¥Ã­", MB_YESNOCANCEL | MB_ICONQUESTION))
+				{
+				case IDYES:		SendMessage(hwnd, WM_COMMAND, ID_FILE_SAVE, 0);
+				case IDNO:		break;
+				case IDCANCEL:	cancel = TRUE;
+				}
+			}
+			//CHAR szFileName[MAX_PATH]{};
+			if (cancel)break;
+			OPENFILENAME ofn;
+			ZeroMemory(&ofn, sizeof(ofn));
 
-		 OPENFILENAME ofn;
-		 ZeroMemory(&ofn,sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hwnd;
+			ofn.lpstrFilter = "Text files: (*.txt)\0*.txt\0C Plus Plus files (*.cpp | *.h)\0*.cpp;*.h\0All files (*.*)\0*.*\0";
+			ofn.lpstrDefExt = "txt";
+			//std::cout << "Hello" << std::endl;
+			//std::cout << sizeof("Hello") << std::endl;
+			ofn.lpstrFile = szFileName;
+			ofn.nMaxFile = MAX_PATH;
+			ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 
-		 ofn.lStructSize=sizeof(ofn);
-		 ofn.hwndOwner=hwnd;
-		 ofn.lpstrFilter="Text files: (*.txt)\0*.txt \0All files (*.*)\0*.*\0"; 
-		 
-		 ofn.lpstrFile=(LPSTR)szFileName;
-		 ofn.nMaxFile=MAX_PATH;
-		 ofn.Flags=OFN_EXPLORER|OFN_FILEMUSTEXIST|OFN_HIDEREADONLY;
-		 ofn.lpstrDefExt="txt";
-
-		 if (GetOpenFileName(&ofn))
-		 {
-			 HWND hEdit=GetDlgItem(hwnd,IDC_EDIT);
-			 LoadTextFileToEdit(hEdit,szFileName);
-		 }
-		
-
-
+			if (GetOpenFileName(&ofn))
+			{
+				HWND hEdit = GetDlgItem(hwnd, IDC_EDIT);
+				LoadTextFileToEdit(hEdit, szFileName);
+				bnChanged = FALSE;
+			}
 		}
-			break;
+		break;
+		case ID_FILE_SAVE:
+		{
+			if (strlen(szFileName))
+				SaveTextFileFromEdit(GetDlgItem(hwnd, IDC_EDIT), szFileName);
+			else
+				SendMessage(hwnd, WM_COMMAND, LOWORD(ID_FILE_SAVEAS), 0);
+		}
+		break;
+		case ID_FILE_SAVEAS:
+		{
+			OPENFILENAME ofn;
+			ZeroMemory(&ofn, sizeof(ofn));
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = hwnd;
+			ofn.lpstrFilter = "Text files: (*.txt)\0*.txt\0C Plus Plus files (*.cpp | *.h)\0*.cpp;*.h\0All files: (*.*)\0*.*\0";
+		
+			ofn.lpstrDefExt = "txt";
+			ofn.lpstrFile = szFileName;
+			ofn.nMaxFile = MAX_PATH;
+			ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+			if (GetSaveFileName(&ofn))SaveTextFileFromEdit(GetDlgItem(hwnd, IDC_EDIT), szFileName);
+		}
+		break;
+		/////////////////////////////////////////////////////////////////////
+		case IDC_EDIT:
+		{
+			if (HIWORD(wParam) == EN_CHANGE)	//Doesn't work with MULTILINE & WM_SETTEXT simultanously.
+			{
+				bnChanged = TRUE;
+				std::cout << "File was changed" << std::endl;
+			}
+		}
+		break;
 		}
 		break;
 	case WM_DESTROY:
-		FreeLibrary(hRichedit20);
+		FreeLibrary(hRichEdit20);
 		PostQuitMessage(0);
 		break;
 	case WM_CLOSE:
