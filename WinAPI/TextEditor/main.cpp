@@ -121,7 +121,7 @@ INT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			BOOL cancel = FALSE;
 			if (bnChanged)
 			{
-				switch (MessageBox(hwnd, "Ñîõðàíèòü èçìåíåíèÿ?", "Ôàéë áûë èçìåíåí", MB_YESNOCANCEL | MB_ICONQUESTION))
+				switch (MessageBox(hwnd, "файл не открыт ", "файл не открыт", MB_YESNOCANCEL | MB_ICONQUESTION))
 				{
 				case IDYES:		SendMessage(hwnd, WM_COMMAND, ID_FILE_SAVE, 0);
 				case IDNO:		break;
